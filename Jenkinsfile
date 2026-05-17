@@ -49,7 +49,7 @@ pipeline {
             echo "Build SUCCESS"
 
             emailext (
-                to: "your-email@gmail.com,rituc7707@gmail.com",
+                to: "rituc7707@gmail.com",
                 subject: "Build SUCCESS",
                 body: "Pipeline completed successfully 👍"
             )
