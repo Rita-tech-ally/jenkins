@@ -53,8 +53,6 @@ pipeline {
                 subject: "Build SUCCESS",
                 body: "Pipeline completed successfully 👍"
             )
-
-            emailNotification("SUCCESS")
         }
 
         failure {
@@ -65,8 +63,6 @@ pipeline {
                 subject: "Build FAILED",
                 body: "Check Jenkins logs ❌"
             )
-
-            emailNotification("FAILED")
         }
 
         always {
@@ -74,3 +70,4 @@ pipeline {
         }
     }
 }
+      
