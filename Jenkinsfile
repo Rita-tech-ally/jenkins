@@ -70,14 +70,7 @@ pipeline {
 
         stage('Git Push') {
             steps {
-                sh '''
-                    git config user.name "jenkins"
-                    git config user.email "jenkins@example.com"
-
-                    git add .
-                    git commit -m "Automated build commit" || true
-                    git push origin ${BRANCH_NAME} || true
-                '''
+                gitPush(params.BRANCH_NAME)
             }
         }
     }
@@ -88,3 +81,4 @@ pipeline {
         }
     }
 }
+       
