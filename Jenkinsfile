@@ -1,84 +1,76 @@
+@Library('common-utils@main') _
+
 pipeline {
 
-    agent {
-        label 'ubuntu-slave1'
-    }
-
-    parameters {
-        string(name: 'BRANCH_NAME', defaultValue: 'master', description: 'Git Branch Name')
-
-        choice(
-            name: 'ENVIRONMENT',
-            choices: ['dev', 'test', 'prod'],
-            description: 'Select Environment'
-        )
-
-        booleanParam(
-            name: 'RUN_TESTS',
-            defaultValue: true,
-            description: 'Run Unit Tests'
-        )
-    }
-
-    tools {
-        jdk 'JDK8'
-    }
-
-    environment {
-        JAVA_HOME = '/usr/lib/jvm/java-8-openjdk-amd64'
-        PATH = "${JAVA_HOME}/bin:${env.PATH}"
-    }
+    agent any
 
     stages {
 
         stage('Checkout') {
             steps {
-                git branch: "${params.BRANCH_NAME}",
-                url: 'https://github.com/opstree/spring3hibernate.git'
+                git 'https://github.com/iforimran9/secretsanta-generator.git'
+            }
+        }
+
+        stage('Pre Build Checks') {
+            steps {
+                preBuildChecks()
             }
         }
 
         stage('GitLeaks Scan') {
             steps {
-                sh '''
-                    echo "Running GitLeaks Scan..."
-                    gitleaks detect --source . || true
-                '''
+                gitLeaksScan()
             }
         }
 
-        stage('Compile') {
+        stage('Sonar Analysis') {
             steps {
-                sh 'mvn clean compile'
+                sonarAnalysis()
             }
         }
 
-        stage('Unit Test') {
-            when {
-                expression { params.RUN_TESTS == true }
-            }
+        stage('OWASP Dependency Check') {
             steps {
-                sh 'mvn test'
+                owaspDependencyCheck()
             }
         }
 
-        stage('Build') {
+        stage('Test') {
             steps {
-                sh 'mvn package -DskipTests'
-            }
-        }
-
-        stage('Git Push') {
-            steps {
-                gitPush(params.BRANCH_NAME)
+                mavenTest()
             }
         }
     }
 
     post {
+
+        success {
+            echo "Build SUCCESS"
+
+            emailext (
+                to: "your-email@gmail.com,rituc7707@gmail.com",
+                subject: "Build SUCCESS",
+                body: "Pipeline completed successfully 👍"
+            )
+
+            emailNotification("SUCCESS")
+        }
+
+        failure {
+            echo "Build FAILED"
+
+            emailext (
+                to: "your-email@gmail.com,rituc7707@gmail.com",
+                subject: "Build FAILED",
+                body: "Check Jenkins logs ❌"
+            )
+
+            emailNotification("FAILED")
+        }
+
         always {
-            echo "Pipeline execution completed."
+            echo "CI Pipeline Completed"
         }
     }
 }
-       
