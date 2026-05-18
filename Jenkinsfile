@@ -59,7 +59,7 @@ pipeline {
             echo "Build FAILED"
 
             emailext (
-                to: "your-email@gmail.com,rituc7707@gmail.com",
+                to: "rituc7707@gmail.com",
                 subject: "Build FAILED",
                 body: "Check Jenkins logs"
             )
